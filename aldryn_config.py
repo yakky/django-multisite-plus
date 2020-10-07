@@ -52,10 +52,8 @@ class Form(forms.BaseForm):
         #       awkward CACHE_URL "if" situation.
         from aldryn_addons.utils import djsenv as env, boolean_ish
         DJANGO_MODE = env('DJANGO_MODE')
-        if DJANGO_MODE == 'build' and settings['CACHE_URL'] == 'locmem://':
-            return settings
-
         settings['INSTALLED_APPS'].append('django_multisite_plus')
+
 
         settings['DJANGO_MULTISITE_PLUS_REWRITE_DOMAINS'] = boolean_ish(env(
             'DJANGO_MULTISITE_PLUS_REWRITE_DOMAINS',
@@ -80,6 +78,9 @@ class Form(forms.BaseForm):
 
         mode = env('DJANGO_MULTISITE_PLUS_MODE', data['mode'])
         settings['DJANGO_MULTISITE_PLUS_MODE'] = mode
+        if DJANGO_MODE == 'build' and settings['CACHE_URL'] == 'locmem://':
+            return settings
+
         if mode == 'single-process':
             self.single_process_settings(env, settings)
         elif mode == 'multi-process':
@@ -103,7 +104,9 @@ class Form(forms.BaseForm):
         settings['SITE_ID'] = SiteID(default=int(env('SITE_ID', 1)))
         settings['INSTALLED_APPS'].append('multisite')
 
-        MIDDLEWARE_CLASSES = settings['MIDDLEWARE_CLASSES']
+        MIDDLEWARE_CLASSES = settings.get('MIDDLEWARE_CLASSES', None)
+        if not MIDDLEWARE_CLASSES:
+            MIDDLEWARE_CLASSES = settings['MIDDLEWARE']
 
         # multisite.middleware.DynamicSiteMiddleware must be before
         # cms.middleware.utils.ApphookReloadMiddleware

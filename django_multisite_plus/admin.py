@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.sites.admin import SiteAdmin as DjangoSiteAdmin
 from django.contrib.sites.models import Site
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from multisite.admin import AliasInline as MultisiteAliasInline
@@ -119,7 +120,8 @@ class SiteAdmin(DjangoSiteAdmin):
     domain_html.allow_tags = True
 
     def linked_url(self, obj, text=_('open')):
-        return '<a href="{}" target="_blank">{}</a>'.format(
+        return format_html(
+            '<a href="{}" target="_blank">{}</a>',
             obj.multisiteplus_site.get_url(),
             text,
         )

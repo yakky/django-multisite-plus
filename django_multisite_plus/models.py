@@ -143,6 +143,7 @@ class Site(models.Model):
         'sites.Site',
         related_name='multisiteplus_site',
         primary_key=True,
+        on_delete=models.CASCADE,
     )
     real_domain = models.CharField(
         _('real domain'),
